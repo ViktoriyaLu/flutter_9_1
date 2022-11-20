@@ -10,12 +10,21 @@ class SignUpPage extends StatefulWidget {
 
 class _SignUpPageState extends State<SignUpPage> {
   final loginController = TextEditingController();
-
+  final emailController = TextEditingController();
   final passwordController = TextEditingController();
-
   final passwordAgainController = TextEditingController();
-
   final CredentialsStore _credentialsStore = CredentialsStore();
+  bool _agreement = false;
+
+  @override
+  void dispose() {
+    // !!! ubivaem controllers - chtob ne tratit pamyat
+    loginController.dispose();
+    emailController.dispose();
+    passwordController.dispose();
+    passwordAgainController.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -36,42 +45,62 @@ class _SignUpPageState extends State<SignUpPage> {
           ),
         ),
       ),
-      body: Container(
+      body: Padding(
         padding: const EdgeInsets.all(30),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            TextField(
-              controller: loginController,
-              decoration: const InputDecoration(
-                  icon: Icon(Icons.person), labelText: 'Login*'),
+            Container(
+              decoration: BoxDecoration(
+                color: Color.fromARGB(255, 208, 229, 245),
+              ),
+              child: Column(
+                children: [
+                  TextField(
+                    controller: loginController,
+                    decoration: const InputDecoration(
+                        icon: Icon(Icons.person), labelText: 'Login*'),
+                  ),
+                  TextField(
+                    controller: passwordController,
+                    decoration: const InputDecoration(
+                        icon: Icon(Icons.key), labelText: 'Password*'),
+                  ),
+                  TextField(
+                    controller: passwordAgainController,
+                    decoration: const InputDecoration(
+                        icon: Icon(Icons.key), hintText: 'Password again*'),
+                  ),
+                  const TextField(
+                    decoration: InputDecoration(
+                        icon: Icon(Icons.face), labelText: 'Имя'),
+                  ),
+                  const TextField(
+                    decoration: InputDecoration(
+                        icon: Icon(Icons.face), labelText: 'Фамилия'),
+                  ),
+                  const TextField(
+                    decoration: InputDecoration(
+                        icon: Icon(Icons.phone), labelText: 'Номер телефона'),
+                  ),
+                  TextField(
+                    controller: emailController,
+                    decoration: const InputDecoration(
+                        icon: Icon(Icons.post_add), labelText: 'e-mail*'),
+                  ),
+                  const SizedBox(height: 10.0),
+                ],
+              ),
             ),
-            TextField(
-              controller: passwordController,
-              decoration: const InputDecoration(
-                  icon: Icon(Icons.key), labelText: 'Password*'),
-            ),
-            TextField(
-              controller: passwordAgainController,
-              decoration: const InputDecoration(
-                  icon: Icon(Icons.key), hintText: 'Password again*'),
-            ),
-            const TextField(
-              decoration: InputDecoration(
-                  icon: Icon(Icons.face), labelText: 'First name'),
-            ),
-            const TextField(
-              decoration: InputDecoration(
-                  icon: Icon(Icons.face), labelText: 'Last name'),
-            ),
-            const TextField(
-              decoration: InputDecoration(
-                  icon: Icon(Icons.phone), labelText: 'Phone number'),
-            ),
-            const TextField(
-              decoration: InputDecoration(
-                  icon: Icon(Icons.post_add), labelText: 'e-mail'),
-            ),
+
+            CheckboxListTile(
+                value: _agreement,
+                title: const Text(
+                  'Я ознакомлен с документом "Согласие на обработку персональных данных" и даю согласие на обработку моих персональных данных в соответствии с требованиями "Федерального закона О персональных данных № 152-ФЗ".',
+                ),
+                onChanged: (bool? value) =>
+                    setState(() => _agreement = value!)),
+
             // TextFormField(validator: (value) {
             //   if (value!.isEmpty) return 'Пожалуйста введите свой E-mail';
             //   if (!value.contains('@') || !value.contains('.'))
@@ -86,12 +115,53 @@ class _SignUpPageState extends State<SignUpPage> {
                 final password = passwordController.text;
                 final passwordAgain = passwordAgainController.text;
 
-                if (password != passwordAgain) {
+                if (login.isEmpty) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(
+                      backgroundColor: Colors.redAccent,
+                      content: Text(
+                        'Login required !',
+                      ),
+                    ),
+                  );
+                  return;
+                } else if (password.isEmpty) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(
+                      backgroundColor: Colors.redAccent,
+                      content: Text(
+                        'Password required!',
+                      ),
+                    ),
+                  );
+                  return;
+                } else if (password != passwordAgain) {
                   ScaffoldMessenger.of(context).showSnackBar(
                     const SnackBar(
                       backgroundColor: Colors.redAccent,
                       content: Text(
                         'Пароли не совпадают!',
+                      ),
+                    ),
+                  );
+                  return;
+                } else if (!emailController.text.contains('@') ||
+                    !emailController.text.contains('.')) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(
+                      backgroundColor: Colors.redAccent,
+                      content: Text(
+                        'Пожалуйста введите корректный e-mail',
+                      ),
+                    ),
+                  );
+                  return;
+                } else if (!_agreement) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(
+                      backgroundColor: Colors.redAccent,
+                      content: Text(
+                        'Примите согласие!',
                       ),
                     ),
                   );

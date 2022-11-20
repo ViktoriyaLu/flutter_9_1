@@ -61,7 +61,7 @@ class _HomePageState extends State<HomePage> {
         )),
         child: Column(
           children: [
-            Image.asset('assets/images/Rose.jpeg'),
+            Image.asset('assets/images/Blonde.png'),
             const SizedBox(
               height: 50,
             ),
